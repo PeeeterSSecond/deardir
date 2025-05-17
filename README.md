@@ -1,3 +1,4 @@
+[![PyPI Downloads](https://static.pepy.tech/badge/deardir)](https://pepy.tech/projects/deardir)
 # deardir
 
 **Validate and optionally create project directory structures from JSON or YAML schema files.**
