@@ -93,6 +93,19 @@ deardir watch ./Tests --schema schema.yaml --create --interval 1 --duration 10
 
 ---
 
+## 🌱 Future Ideas
+
+- Improved CLI and JSON/HTML/Markdown reporting with colorized output  
+- Support for optional files/folders and conditional rules in schema  
+- Custom user-defined validation hooks  
+- Auto-fix mode (e.g. create from templates, autofill missing entries)  
+- File system watch mode with live validation (`--watch`)  
+- GUI or web interface for drag-and-drop validation  
+- GitHub Action / CI/CD integration  
+- Multi-language support (English, German, ...)
+
+---
+
 ## 📄 License
 
 MIT
