@@ -79,8 +79,13 @@ asyncio.run(dd.live(interval=10, duration=60))
 ### CLI
 
 ```bash
-deardir check . --schema schema.yml
-deardir watch . --schema schema.yml --interval 10 --create
+deardir
+deardir --help
+deardir --version
+deardir check ./Tests --schema schema.yaml 
+deardir check ./Tests --schema schema.yaml --create
+#ASYNC LIVE WATCHER:
+deardir watch ./Tests --schema schema.yaml --create --interval 1 --duration 10
 ```
 
 ---

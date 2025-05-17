@@ -46,6 +46,7 @@ class DearDir:
                      "missing": self.missing,
                      "created": self.created}
 
+
     def __repr__(self):
         """
         Returns a formatted string representation of the current state.
@@ -74,6 +75,22 @@ class DearDir:
         else:
             raise FileNotFoundError(f"File does not exist {path}")
 
+
+    def remove_path(self, path: Path):
+        """
+        Remove a root path from the list.
+
+        Args:
+            path (Path): Path to remove.
+
+        Raises:
+            ValueError: If the path is not in the list.
+        """
+        try:
+            self.entitys.remove(path)
+        except ValueError:
+            raise ValueError(f"Path {path} not found in entitys.")
+        
 
     def set_schema(self, schema: Path | dict | list):
         """
@@ -168,11 +185,13 @@ class DearDir:
         finally:
             self.stop_live = False
 
+
     def stop_live(self):
         """
         Sets the stop_live flag to True (placeholder for external control).
         """
         self.stop_live = True
+
 
     def _try_mkpath(self, path: Path) -> bool:
         """
@@ -255,4 +274,5 @@ class DearDir:
 
         else:
             raise ValueError(f"The schema file needs to be .json, .yaml or .txt!")
+
 
