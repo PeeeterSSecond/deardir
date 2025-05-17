@@ -1,4 +1,6 @@
 [![PyPI Downloads](https://static.pepy.tech/badge/deardir)](https://pepy.tech/projects/deardir)
+[![codecov](https://codecov.io/gh/deardir/deardir/branch/main/graph/badge.svg)](https://codecov.io/gh/deardir/deardir)
+
 # deardir
 
 **Validate and optionally create project directory structures from JSON or YAML schema files.**
