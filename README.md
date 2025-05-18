@@ -69,12 +69,18 @@ print(dd.created)   # Set of paths that were created
 ### Async live mode
 
 ```python
-import asyncio
 
 dd = DearDir([Path(".")], "schema.yml")
 dd.create_missing = True
 
-asyncio.run(dd.live(interval=10, duration=60))
+dd.live(interval=10, duration=60, mode=1)
+
+# Thread
+dd.live(interval=10, duration=60, mode=2)
+
+# Synchron
+dd.live(interval=10, duration=60, mode=0)
+
 ```
 
 ---

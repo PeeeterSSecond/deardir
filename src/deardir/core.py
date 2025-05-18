@@ -148,7 +148,7 @@ class DearDir:
             raise AttributeError("Schema or path not set yet.")
 
 
-    def live(self, interval: int = 60, duration: int = None, mode: int = 0, deamon: bool = False):
+    def live(self, interval: int = 30, duration: int = None, mode: int = 0, daemon: bool = False):
         """
         Performs live validation either synchronously, asynchronously, or in a separate thread.
 
@@ -218,9 +218,11 @@ class DearDir:
                 return asyncio.get_event_loop().create_task(asyncio.to_thread(_live_loop))
 
         elif mode == 2:
-            thread = threading.Thread(target=_live_loop, daemon=deamon)
+            thread = threading.Thread(target=_live_loop, daemon=daemon)
             thread.start()
-            return thread
+            return thread # Return the thread object for external control 
+            
+
 
         else:
             raise ValueError("Ungültiger Modus: 0 = sync, 1 = async, 2 = thread")
