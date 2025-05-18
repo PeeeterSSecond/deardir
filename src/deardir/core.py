@@ -4,6 +4,8 @@ import yaml
 from pprint import pformat
 from datetime import datetime, timedelta
 import asyncio
+import threading
+import time
 
 class DearDir:
     """
@@ -21,7 +23,7 @@ class DearDir:
         missing (set): Set of missing paths found during the last validation.
         created (set): Set of paths that were created when create_missing is enabled.
         create_missing (bool): Whether missing paths should be automatically created.
-        stop_live (bool): Flag to interrupt live validation loop.
+        _stop_live (bool): Flag to interrupt live validation loop.
         info (dict): Combined status information for representation.
     """
 
@@ -39,7 +41,7 @@ class DearDir:
         self.created: set = set()
 
         self.create_missing: bool = False 
-        self.stop_live = False
+        self._stop_live = False
 
         self.info = {"entitys": self.entitys,
                      "schema": self.schema,
@@ -114,10 +116,12 @@ class DearDir:
         def _recursive_check(entry: object, root: Path, missing: set):
             if isinstance(entry, str | int):
                 this_path: Path = root / str(entry)
-                if not this_path.exists():
-                    missing.add(this_path)
+                if not this_path.exists():                    
                     if self.create_missing:
-                        self._try_mkpath(this_path)
+                        if not self._try_mkpath(this_path):
+                            missing.add(this_path)
+                    else:
+                        missing.add(this_path)
 
             elif isinstance(entry, list):
                 for e in entry:
@@ -126,11 +130,11 @@ class DearDir:
             elif isinstance(entry, dict):
                 for directory, child in entry.items():
                     parent = root / str(directory)
-                    if not parent.exists():
-                        missing.add(parent)
+                    if not parent.exists():                        
                         if self.create_missing and self._try_mkpath(parent):
                             _recursive_check(child, parent, missing)
                         else:
+                            missing.add(parent)
                             _recursive_check(child, parent, missing)
                     else:
                         _recursive_check(child, parent, missing)
@@ -144,53 +148,89 @@ class DearDir:
             raise AttributeError("Schema or path not set yet.")
 
 
-    async def live(self, interval: int = 60, duration: int = None):
+    def live(self, interval: int = 60, duration: int = None, mode: int = 0, deamon: bool = False):
         """
-        Starts a live asynchronous validation loop.
+        Performs live validation either synchronously, asynchronously, or in a separate thread.
 
         Args:
-            interval (int): Number of seconds to wait between validations.
-            duration (int, optional): Total number of seconds to run. If None, runs indefinitely.
+            interval (int): Seconds to wait between validation cycles.
+            duration (int, optional): Maximum runtime in seconds. If None, runs indefinitely.
+            mode (int): Execution mode:
+                0 = synchronous (default)
+                1 = asynchronous using asyncio.to_thread()
+                2 = threaded using threading.Thread()
+            daemon (bool): Whether to start the thread as a daemon (default: False).
         """
-        start = datetime.now()
-        print(f"[{start.isoformat()}] Starte Live-Überwachung...")
+        if not self.entitys:
+            raise AttributeError("No root paths set yet.")
+        if not self.schema:
+            raise AttributeError("No schema set yet.")
+        if not isinstance(interval, int) or interval <= 0:
+            raise ValueError("Interval must be a positive integer.")    
+        if duration is not None and (not isinstance(duration, int) or duration <= 0):
+            raise ValueError("Duration must be a positive integer.")
+        if mode not in [0, 1, 2]:
+            raise ValueError("Mode must be 0 (sync), 1 (async), or 2 (thread).")
 
-        try:
-            
-            while True:
-                now = datetime.now()
-                missing = self.validate()
+        def _live_loop():
+            start = datetime.now()
+            print(f"[{start.isoformat()}] Starte Live-Überwachung...")
 
-                if missing:
-                    print(f"[{datetime.now().isoformat()}] Fehlende Pfade:")
-                    for path in sorted(missing):
-                        print(f"  - {path}")
-                        if self.create_missing:
-                            self._try_mkpath(path)
-                            print(f"    ↳ erstellt")
+            try:
+                while True:
+                    now = datetime.now()
+                    self.validate()
 
-                else:
-                    print(f"[{datetime.now().isoformat()}] Alles vorhanden ✓")
+                    if self.missing:
+                        print(f"[{datetime.now().isoformat()}] Fehlende Pfade:")
+                        for path in sorted(self.missing):
+                            print(f"  - {path}")
+                            if self.create_missing:
+                                self._try_mkpath(path)
+                                print("    ↳ erstellt")
+                    else:
+                        print(f"[{datetime.now().isoformat()}] Alles vorhanden ✓")
 
-                if duration is not None and now - start >= timedelta(seconds=duration):
-                    print(f"[{now.isoformat()}] Beende Live-Überwachung...")
-                    break
+                    if duration is not None and now - start >= timedelta(seconds=duration):
+                        print(f"[{now.isoformat()}] Beende Live-Überwachung...")
+                        break
 
-                await asyncio.sleep(interval)
+                    time.sleep(interval)
 
-        except asyncio.CancelledError:
-            print(f"[{datetime.now().isoformat()}] Überwachung abgebrochen.")
-        except Exception as e:
-            print(f"[{datetime.now().isoformat()}] Fehler: {e}")
-        finally:
-            self.stop_live = False
+                    if self._stop_live:
+                        print(f"[{datetime.now().isoformat()}] Live monitoring stopped by user.")
+                        break
+
+            except KeyboardInterrupt:
+                print(f"[{datetime.now().isoformat()}] Live monitoring interrupted by user.")
+            except Exception as e:
+                print(f"[{datetime.now().isoformat()}] Fehler: {e}")
+
+        # Moduswahl
+        if mode == 0:
+            _live_loop()
+
+        elif mode == 1:
+            try:
+                asyncio.run(asyncio.to_thread(_live_loop))
+            except RuntimeError:
+                # Falls bereits ein Loop läuft (z. B. in einer GUI/WebApp)
+                return asyncio.get_event_loop().create_task(asyncio.to_thread(_live_loop))
+
+        elif mode == 2:
+            thread = threading.Thread(target=_live_loop, daemon=deamon)
+            thread.start()
+            return thread
+
+        else:
+            raise ValueError("Ungültiger Modus: 0 = sync, 1 = async, 2 = thread")
 
 
     def stop_live(self):
         """
         Sets the stop_live flag to True (placeholder for external control).
         """
-        self.stop_live = True
+        self._stop_live = True
 
 
     def _try_mkpath(self, path: Path) -> bool:
@@ -217,6 +257,7 @@ class DearDir:
 
             return True
         except Exception as e:
+            print(f"Error creating path {path}: {e}")
             return False
 
 
@@ -273,6 +314,6 @@ class DearDir:
             ... # Future versions
 
         else:
-            raise ValueError(f"The schema file needs to be .json, .yaml or .txt!")
+            raise ValueError("The schema file needs to be .json, .yaml or .txt!")
 
 
