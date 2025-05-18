@@ -1,5 +1,6 @@
 from deardir import DearDir
 from pathlib import Path
+import time
 
 """Test the DearDir class with a specific schema and root path."""
 
@@ -17,5 +18,14 @@ root_path = Path(__file__).parent / "Testdir"
 schema = Path(__file__).parent / "schema.yaml"
 
 dd = DearDir(root_paths=[root_path], schema=schema)
+dd.create_missing = False
+dd.validate()
+print(dd)
+thread = dd.live(3, 21, 2)
+
+time.sleep(3)
+dd.stop_live()
+time.sleep(3)
 dd.create_missing = True
 dd.validate()
+print(dd)
