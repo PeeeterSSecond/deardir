@@ -60,6 +60,7 @@ def main():
     watch_parser.add_argument("--interval", type=int, default=10, help="Time between checks in seconds")
     watch_parser.add_argument("--duration", type=int, help="Optional total time to run (seconds)")
     watch_parser.add_argument("--create", action="store_true", help="Create missing files/folders if needed")
+    watch_parser.add_argument("--deamon", action="store_true", help="Run in the background as a daemon")
 
     args = parser.parse_args()
 
@@ -87,5 +88,6 @@ def main():
 
     elif args.command == "watch":
         print("Live monitoring started. Press Ctrl+C to stop.")
-        asyncio.run(dd.live(interval=args.interval, duration=args.duration))
+        asyncio.run(dd.live(interval=args.interval, duration=args.duration, deamon=args.deamon))
+        print("Live monitoring stopped.")
         
