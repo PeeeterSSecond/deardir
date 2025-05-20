@@ -9,7 +9,7 @@ pypi ref: https://pypi.org/project/deardir/
 
 ---
 
-## 🚀 Features
+## ➡️ Features
 
 - Validate file/folder structures using declarative schema files
 - Supports `.json`, `.yaml`, `.yml`, Python `dict` or `list` objects
@@ -19,7 +19,7 @@ pypi ref: https://pypi.org/project/deardir/
 
 ---
 
-## 📦 Installation
+## ➡️ Installation
 
 ```bash
 pip install deardir
@@ -33,7 +33,7 @@ poetry install
 
 ---
 
-## 🧪 Example Schema
+## ➡️ Example Schema
 
 ### `schema.yml`
 
@@ -50,7 +50,7 @@ poetry install
 
 ---
 
-## 🧰 Usage
+## ➡️ Usage
 
 ### Python
 
@@ -100,7 +100,7 @@ deardir watch ./Tests --schema schema.yaml --create --interval 1 --duration 10
 
 ---
 
-## 🌱 Future Ideas
+## ➡️ Future Ideas
 
 - Improved CLI and JSON/HTML/Markdown reporting with colorized output  
 - Support for optional files/folders and conditional rules in schema  
