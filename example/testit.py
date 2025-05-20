@@ -17,7 +17,7 @@ import time
 root_path = Path(__file__).parent / "Testdir"
 
 
-aaschema = ["2", "3", [ {"4": ["a", "b"]}, {"5": ["c", "d"]}], ["a", "b"]]
+aaschema = ["2", "3", [ {"4": ["a", "b"]}, {"5": ["c", "d"]}], ["a", "b"]] # ["a", "b"] -> Ok, ["a", ["b", "c"]] -> Error
 aa = DearDir(root_paths=[root_path], schema=aaschema)
 aa.create_missing = True
 aa.validate()
