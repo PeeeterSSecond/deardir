@@ -90,6 +90,7 @@ dd.live(interval=10, duration=60, mode=0)
 ```bash
 deardir
 deardir --help
+deardir check --help
 deardir --version
 deardir check ./Tests --schema schema.yaml 
 deardir check ./Tests --schema schema.yaml --create
