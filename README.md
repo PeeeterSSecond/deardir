@@ -100,7 +100,7 @@ deardir watch ./Tests --schema schema.yaml --create --interval 1 --duration 10
 
 ---
 
-## ➡️ Future Ideas
+## ➡️ Future Ideas (help wanted!)
 
 - Improved CLI and JSON/HTML/Markdown reporting with colorized output  
 - Support for optional files/folders and conditional rules in schema  
