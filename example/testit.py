@@ -15,14 +15,22 @@ import time
 """
 
 root_path = Path(__file__).parent / "Testdir"
-schema = Path(__file__).parent / "schema.yaml"
 
+
+aaschema = ["2", "3", [ {"4": ["a", "b"]}, {"5": ["c", "d"]}], ["a", "b"]]
+aa = DearDir(root_paths=[root_path], schema=aaschema)
+aa.create_missing = True
+aa.validate()
+print(aa)
+
+
+schema = Path(__file__).parent / "schema.yaml"
 dd = DearDir(root_paths=[root_path], schema=schema)
 dd.create_missing = False
 dd.validate()
 print(dd)
-thread = dd.live(3, 21, 2)
 
+thread = dd.live(3, 21, 2)
 time.sleep(3)
 dd.stop_live()
 time.sleep(3)

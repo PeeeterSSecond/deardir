@@ -125,7 +125,19 @@ class DearDir:
 
             elif isinstance(entry, list):
                 for e in entry:
-                    _recursive_check(e, root, missing)
+                    if isinstance(e, list):
+                        raise ValueError("Nested lists are not allowed in schema. Use dicts for structure.")
+                    elif isinstance(e, dict):
+                        _recursive_check(e, root, missing)
+                    else:
+                        this_path = root / str(e)
+                        if not this_path.exists():
+                            if self.create_missing:
+                                if not self._try_mkpath(this_path):
+                                    missing.add(this_path)
+                            else:
+                                missing.add(this_path)
+
 
             elif isinstance(entry, dict):
                 for directory, child in entry.items():
