@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deardir"
-version = "0.1.3"
+version = "0.1.4"
 description = "Validate and optionally create directory structures from YAML or JSON schema files."
 authors = ["Dennis Weiß <dellen2203@googlemail.com>"]
 license = "MIT"
